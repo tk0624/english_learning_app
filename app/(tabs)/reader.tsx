@@ -398,14 +398,19 @@ export default function ReaderScreen() {
 
   const analyze = () => {
     if (!inputText.trim()) return;
-    setWords(extractWords(inputText));
+    // 日本語（ひらがな・カタカナ・漢字・全角記号）が出現したらそこ以降を切り捨て
+    const jpMatch = inputText.search(/[\u3000-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]/);
+    const cleanText = jpMatch >= 0 ? inputText.slice(0, jpMatch).trim() : inputText.trim();
+    if (!cleanText) return;
+    setInputText(cleanText);
+    setWords(extractWords(cleanText));
     setUnknownWords(new Set());
     setTranslation('');
     setIsAnalyzed(true);
-    addTextHistory(inputText);
+    addTextHistory(cleanText);
     setShowHistory(false);
     // 和訳を自動取得
-    fetchTranslation(inputText);
+    fetchTranslation(cleanText);
   };
 
   const clearInput = () => {

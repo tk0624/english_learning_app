@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Platform } from 'react-native';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -22,17 +23,17 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: '#1a1a2e',
           borderTopColor: '#2a2a3e',
-          height: 80,
-          paddingBottom: 18,
+          height: Platform.OS === 'web' ? 70 : 90,
           paddingTop: 8,
+          paddingBottom: Platform.OS === 'web' ? 12 : 28,
         },
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600',
-          marginBottom: 4,
+          paddingBottom: 4,
         },
         tabBarIconStyle: {
-          marginTop: 2,
+          marginBottom: -2,
         },
       }}
     >

@@ -156,8 +156,12 @@ export default function ReaderScreen() {
   const [isAdding, setIsAdding]         = useState(false);
   const [translation, setTranslation]   = useState<string>('');
   const [isTranslating, setIsTranslating] = useState(false);
+  const [showHistory, setShowHistory]   = useState(false);
 
   const addToVocabulary = useProgressStore((s) => s.addToVocabulary);
+  const textHistory     = useProgressStore((s) => s.textHistory);
+  const addTextHistory  = useProgressStore((s) => s.addTextHistory);
+  const removeTextHistory = useProgressStore((s) => s.removeTextHistory);
 
   const analyze = () => {
     if (!inputText.trim()) return;
@@ -165,6 +169,14 @@ export default function ReaderScreen() {
     setUnknownWords(new Set());
     setTranslation('');
     setIsAnalyzed(true);
+    addTextHistory(inputText);
+    setShowHistory(false);
+  };
+
+  const loadHistory = (text: string) => {
+    setInputText(text);
+    setIsAnalyzed(false);
+    setShowHistory(false);
   };
 
   const translateText = async () => {
@@ -267,6 +279,38 @@ export default function ReaderScreen() {
       <TouchableOpacity style={styles.analyzeBtn} onPress={analyze}>
         <Text style={styles.analyzeBtnText}>分析する</Text>
       </TouchableOpacity>
+
+      {/* ── 履歴 ── */}
+      {textHistory.length > 0 && (
+        <View style={styles.historySection}>
+          <TouchableOpacity
+            style={styles.historyToggle}
+            onPress={() => setShowHistory(!showHistory)}
+          >
+            <Text style={styles.historyToggleText}>
+              📋 履歴（{textHistory.length}件）{showHistory ? ' ▲' : ' ▼'}
+            </Text>
+          </TouchableOpacity>
+          {showHistory && textHistory.map((h) => (
+            <View key={h.id} style={styles.historyItem}>
+              <TouchableOpacity
+                style={styles.historyTextArea}
+                onPress={() => loadHistory(h.text)}
+              >
+                <Text style={styles.historyText} numberOfLines={2}>
+                  {h.text}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.historyDelete}
+                onPress={() => removeTextHistory(h.id)}
+              >
+                <Text style={styles.historyDeleteText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      )}
 
       {isAnalyzed && (
         <>
@@ -375,8 +419,16 @@ const styles = StyleSheet.create({
     color: '#f5f5f5',
     marginBottom: 12,
   },
-  analyzeBtn:       { backgroundColor: '#7ed957', borderRadius: 12, padding: 14, alignItems: 'center', marginBottom: 24 },
+  analyzeBtn:       { backgroundColor: '#7ed957', borderRadius: 12, padding: 14, alignItems: 'center', marginBottom: 12 },
   analyzeBtnText:   { color: '#111', fontWeight: 'bold', fontSize: 16 },
+  historySection:   { marginBottom: 24 },
+  historyToggle:    { paddingVertical: 8 },
+  historyToggleText:{ color: '#888', fontSize: 13, fontWeight: '600' },
+  historyItem:      { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1e1e2e', borderRadius: 10, padding: 10, marginTop: 6 },
+  historyTextArea:  { flex: 1 },
+  historyText:      { color: '#bbb', fontSize: 13, lineHeight: 18 },
+  historyDelete:    { marginLeft: 8, padding: 4 },
+  historyDeleteText:{ color: '#666', fontSize: 14 },
   section:          { marginBottom: 24 },
   sectionTitle:     { fontSize: 15, fontWeight: '600', marginBottom: 10, color: '#ccc' },
   audioRow:         { flexDirection: 'row', gap: 10, marginBottom: 8 },

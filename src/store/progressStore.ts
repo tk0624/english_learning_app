@@ -2,9 +2,11 @@ import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { UserProgress, FlashcardProgress, MyVocabularyItem, TrashItem } from '@/types';
 
-const STORAGE_KEY = 'user_progress';
-const VOCAB_KEY   = 'my_vocabulary';
-const TRASH_KEY   = 'my_trash';
+const STORAGE_KEY  = 'user_progress';
+const VOCAB_KEY    = 'my_vocabulary';
+const TRASH_KEY    = 'my_trash';
+const HISTORY_KEY  = 'text_history';
+const MAX_HISTORY  = 10;
 
 const initialProgress: UserProgress = {
   flashcardProgress: [],
@@ -15,15 +17,25 @@ const initialProgress: UserProgress = {
   lastStudiedDate: '',
 };
 
+export interface TextHistoryItem {
+  id: string;
+  text: string;
+  addedDate: string;
+}
+
 interface ProgressStore {
   progress: UserProgress;
   myVocabulary: MyVocabularyItem[];
   trash: TrashItem[];
+  textHistory: TextHistoryItem[];
   load: () => Promise<void>;
   recordFlashcard: (result: FlashcardProgress) => Promise<void>;
   completeListening: (id: string) => Promise<void>;
   completeGrammar: (id: string) => Promise<void>;
   recordSpeaking: (exerciseId: string, score: number) => Promise<void>;
+  // Text History
+  addTextHistory: (text: string) => Promise<void>;
+  removeTextHistory: (id: string) => Promise<void>;
   // My Words
   addToVocabulary: (item: MyVocabularyItem) => Promise<void>;
   updateVocabulary: (id: string, patch: Partial<MyVocabularyItem>) => Promise<void>;
@@ -37,17 +49,20 @@ export const useProgressStore = create<ProgressStore>((set, get) => ({
   progress: initialProgress,
   myVocabulary: [],
   trash: [],
+  textHistory: [],
 
   load: async () => {
-    const [raw, vocabRaw, trashRaw] = await Promise.all([
+    const [raw, vocabRaw, trashRaw, histRaw] = await Promise.all([
       AsyncStorage.getItem(STORAGE_KEY),
       AsyncStorage.getItem(VOCAB_KEY),
       AsyncStorage.getItem(TRASH_KEY),
+      AsyncStorage.getItem(HISTORY_KEY),
     ]);
     set({
       progress:     raw      ? (JSON.parse(raw)      as UserProgress)       : initialProgress,
       myVocabulary: vocabRaw ? (JSON.parse(vocabRaw) as MyVocabularyItem[]) : [],
       trash:        trashRaw ? (JSON.parse(trashRaw) as TrashItem[])        : [],
+      textHistory:  histRaw  ? (JSON.parse(histRaw)  as TextHistoryItem[])  : [],
     });
   },
 
@@ -89,6 +104,29 @@ export const useProgressStore = create<ProgressStore>((set, get) => ({
     const progress = { ...get().progress, speakingHistory: history };
     set({ progress });
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  },
+
+  // ── Text History ────────────────────────────────────────
+
+  addTextHistory: async (text) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    // 同じテキストがあれば先頭に移動
+    const filtered = get().textHistory.filter((h) => h.text !== trimmed);
+    const entry: TextHistoryItem = {
+      id: `hist-${Date.now()}`,
+      text: trimmed,
+      addedDate: new Date().toISOString(),
+    };
+    const textHistory = [entry, ...filtered].slice(0, MAX_HISTORY);
+    set({ textHistory });
+    await AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(textHistory));
+  },
+
+  removeTextHistory: async (id) => {
+    const textHistory = get().textHistory.filter((h) => h.id !== id);
+    set({ textHistory });
+    await AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(textHistory));
   },
 
   // ── My Words ────────────────────────────────────────────

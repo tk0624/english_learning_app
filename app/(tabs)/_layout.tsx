@@ -1,13 +1,10 @@
 import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { Platform } from 'react-native';
+import { Platform, Text } from 'react-native';
 
-type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
-
-const TABS: { name: string; label: string; icon: IoniconName }[] = [
-  { name: 'reader',   label: 'テキスト分析', icon: 'document-text-outline' },
-  { name: 'my-words', label: 'マイ単語帳',   icon: 'bookmark-outline' },
-  { name: 'mastered', label: '覚えた単語',   icon: 'checkmark-done-outline' },
+const TABS: { name: string; label: string; emoji: string }[] = [
+  { name: 'reader',   label: 'テキスト分析', emoji: '📖' },
+  { name: 'my-words', label: 'マイ単語帳',   emoji: '📒' },
+  { name: 'mastered', label: '覚えた単語',   emoji: '✅' },
 ];
 
 export default function TabLayout() {
@@ -23,28 +20,24 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: '#1a1a2e',
           borderTopColor: '#2a2a3e',
-          height: Platform.OS === 'web' ? 70 : 90,
-          paddingTop: 8,
-          paddingBottom: Platform.OS === 'web' ? 12 : 28,
+          height: Platform.OS === 'web' ? 64 : 88,
+          paddingTop: 6,
+          paddingBottom: Platform.OS === 'web' ? 8 : 26,
         },
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600',
-          paddingBottom: 4,
-        },
-        tabBarIconStyle: {
-          marginBottom: -2,
         },
       }}
     >
-      {TABS.map(({ name, label, icon }) => (
+      {TABS.map(({ name, label, emoji }) => (
         <Tabs.Screen
           key={name}
           name={name}
           options={{
             title: label,
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name={icon} size={size} color={color} />
+            tabBarIcon: ({ color }) => (
+              <Text style={{ fontSize: 20, color, textAlign: 'center' }}>{emoji}</Text>
             ),
           }}
         />

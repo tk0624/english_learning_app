@@ -30,6 +30,13 @@ export default function TabLayout() {
           }}
         />
       ))}
+      {/* 使っていないがファイルが残っているルートを非表示にする */}
+      <Tabs.Screen name="index" options={{ href: null }} />
+      <Tabs.Screen name="flashcard" options={{ href: null }} />
+      <Tabs.Screen name="grammar" options={{ href: null }} />
+      <Tabs.Screen name="listening" options={{ href: null }} />
+      <Tabs.Screen name="speaking" options={{ href: null }} />
+      <Tabs.Screen name="pronunciation" options={{ href: null }} />
     </Tabs>
   );
 }

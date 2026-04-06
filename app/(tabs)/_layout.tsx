@@ -13,9 +13,23 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#4A90E2',
-        tabBarInactiveTintColor: '#8E8E93',
         headerShown: true,
+        headerTitle: 'English Learning App',
+        headerStyle: { backgroundColor: '#1a1a2e' },
+        headerTitleStyle: { color: '#f5f5f5', fontWeight: 'bold', fontSize: 17 },
+        tabBarActiveTintColor: '#7ed957',
+        tabBarInactiveTintColor: '#888',
+        tabBarStyle: {
+          backgroundColor: '#1a1a2e',
+          borderTopColor: '#2a2a3e',
+          height: 64,
+          paddingBottom: 10,
+          paddingTop: 6,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '600',
+        },
       }}
     >
       {TABS.map(({ name, label, icon }) => (

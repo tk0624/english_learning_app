@@ -85,8 +85,7 @@ export default function MyWordsScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>マイ単語帳</Text>
+    <ScrollView contentContainerStyle={styles.container} style={styles.scrollBg}>
       <Text style={styles.count}>{myVocabulary.length} 件</Text>
 
       {myVocabulary.length === 0 ? (
@@ -261,46 +260,46 @@ function WordCard({
 // ── スタイル ─────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  container:        { padding: 20 },
-  title:            { fontSize: 22, fontWeight: 'bold', marginBottom: 4 },
-  count:            { color: '#999', marginBottom: 16 },
-  empty:            { color: '#AAA', textAlign: 'center', marginTop: 20, lineHeight: 24 },
+  scrollBg:         { backgroundColor: '#121212' },
+  container:        { padding: 20, paddingBottom: 40 },
+  count:            { color: '#888', marginBottom: 16, fontSize: 13 },
+  empty:            { color: '#666', textAlign: 'center', marginTop: 20, lineHeight: 24 },
 
-  card:             { backgroundColor: '#F7F9FC', borderRadius: 14, marginBottom: 10, overflow: 'hidden' },
+  card:             { backgroundColor: '#1e1e2e', borderRadius: 14, marginBottom: 10, overflow: 'hidden' },
   cardHeader:       { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 14 },
   cardHeaderLeft:   { flex: 1 },
   cardHeaderRight:  { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  word:             { fontSize: 18, fontWeight: 'bold' },
-  reading:          { fontSize: 13, color: '#4A90E2', marginTop: 2 },
+  word:             { fontSize: 18, fontWeight: 'bold', color: '#f5f5f5' },
+  reading:          { fontSize: 13, color: '#7ed957', marginTop: 2 },
   playIcon:         { fontSize: 18 },
-  chevron:          { color: '#999', fontSize: 14 },
+  chevron:          { color: '#666', fontSize: 14 },
 
-  cardBody:         { paddingHorizontal: 14, paddingBottom: 14, borderTopWidth: 1, borderTopColor: '#E8EDF5' },
-  meaning:          { fontSize: 16, color: '#333', marginTop: 10, marginBottom: 8 },
-  noMeaning:        { fontSize: 13, color: '#AAA', fontStyle: 'italic', marginTop: 10, marginBottom: 8 },
-  exampleBox:       { backgroundColor: '#EFF6FF', borderRadius: 10, padding: 12, marginBottom: 10 },
-  exampleLabel:     { fontSize: 11, color: '#4A90E2', marginBottom: 4 },
+  cardBody:         { paddingHorizontal: 14, paddingBottom: 14, borderTopWidth: 1, borderTopColor: '#2a2a3e' },
+  meaning:          { fontSize: 16, color: '#ddd', marginTop: 10, marginBottom: 8 },
+  noMeaning:        { fontSize: 13, color: '#666', fontStyle: 'italic', marginTop: 10, marginBottom: 8 },
+  exampleBox:       { backgroundColor: '#1a2a1a', borderRadius: 10, padding: 12, marginBottom: 10 },
+  exampleLabel:     { fontSize: 11, color: '#7ed957', marginBottom: 4 },
   exampleRow:       { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  example:          { flex: 1, fontSize: 14, color: '#444', fontStyle: 'italic', lineHeight: 22 },
+  example:          { flex: 1, fontSize: 14, color: '#bbb', fontStyle: 'italic', lineHeight: 22 },
   exampleJa:        { fontSize: 13, color: '#888', marginTop: 6 },
-  source:           { fontSize: 11, color: '#CCC', marginBottom: 10 },
-  masterBtn:        { backgroundColor: '#34C759', borderRadius: 10, padding: 12, alignItems: 'center', marginTop: 8 },
+  source:           { fontSize: 11, color: '#555', marginBottom: 10 },
+  masterBtn:        { backgroundColor: '#2e7d32', borderRadius: 10, padding: 12, alignItems: 'center', marginTop: 8 },
   masterBtnText:    { color: '#fff', fontWeight: '600' },
 
-  noMeaningBadge:   { fontSize: 11, color: '#FF9500', fontWeight: '600', marginTop: 2 },
+  noMeaningBadge:   { fontSize: 11, color: '#ff914d', fontWeight: '600', marginTop: 2 },
   fetchBtn:         { backgroundColor: '#5856D6', borderRadius: 10, padding: 12, alignItems: 'center', marginTop: 10 },
   fetchBtnText:     { color: '#fff', fontWeight: '600', fontSize: 14 },
   actionRow:        { flexDirection: 'row', gap: 8, marginTop: 8 },
-  webSearchBtn:     { flex: 1, backgroundColor: '#4A90E2', borderRadius: 8, padding: 10, alignItems: 'center' },
+  webSearchBtn:     { flex: 1, backgroundColor: '#2a5298', borderRadius: 8, padding: 10, alignItems: 'center' },
   webSearchBtnText: { color: '#fff', fontSize: 13, fontWeight: '600' },
-  editBtn:          { flex: 1, backgroundColor: '#FF9500', borderRadius: 8, padding: 10, alignItems: 'center' },
+  editBtn:          { flex: 1, backgroundColor: '#b36b00', borderRadius: 8, padding: 10, alignItems: 'center' },
   editBtnText:      { color: '#fff', fontSize: 13, fontWeight: '600' },
 
-  editLabel:        { fontSize: 13, color: '#666', marginTop: 10, marginBottom: 4 },
-  editInput:        { borderWidth: 1, borderColor: '#D0DCF0', borderRadius: 8, padding: 10, fontSize: 14, minHeight: 44, marginBottom: 8, backgroundColor: '#FAFAFA' },
+  editLabel:        { fontSize: 13, color: '#999', marginTop: 10, marginBottom: 4 },
+  editInput:        { borderWidth: 1, borderColor: '#333', borderRadius: 8, padding: 10, fontSize: 14, minHeight: 44, marginBottom: 8, backgroundColor: '#1a1a1a', color: '#f5f5f5' },
   editActions:      { flexDirection: 'row', gap: 10, marginTop: 4 },
-  cancelBtn:        { flex: 1, borderWidth: 1, borderColor: '#CCC', borderRadius: 10, padding: 12, alignItems: 'center' },
-  cancelBtnText:    { color: '#666' },
-  saveBtn:          { flex: 1, backgroundColor: '#FF9500', borderRadius: 10, padding: 12, alignItems: 'center' },
-  saveBtnText:      { color: '#fff', fontWeight: '600' },
+  cancelBtn:        { flex: 1, borderWidth: 1, borderColor: '#555', borderRadius: 10, padding: 12, alignItems: 'center' },
+  cancelBtnText:    { color: '#999' },
+  saveBtn:          { flex: 1, backgroundColor: '#7ed957', borderRadius: 10, padding: 12, alignItems: 'center' },
+  saveBtnText:      { color: '#111', fontWeight: '600' },
 });

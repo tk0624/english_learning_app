@@ -252,9 +252,8 @@ export default function ReaderScreen() {
     <ScrollView
       contentContainerStyle={styles.container}
       keyboardShouldPersistTaps="handled"
+      style={styles.scrollBg}
     >
-      <Text style={styles.title}>テキスト分析</Text>
-
       {/* ── テキスト入力 ── */}
       <TextInput
         style={styles.textInput}
@@ -363,45 +362,46 @@ export default function ReaderScreen() {
 }
 
 const styles = StyleSheet.create({
-  container:        { padding: 20 },
-  title:            { fontSize: 22, fontWeight: 'bold', marginBottom: 16 },
+  scrollBg:         { backgroundColor: '#121212' },
+  container:        { padding: 20, paddingBottom: 40 },
   textInput:        {
     borderWidth: 1,
-    borderColor: '#DDD',
+    borderColor: '#333',
     borderRadius: 12,
     padding: 14,
     fontSize: 15,
     minHeight: 140,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: '#1e1e1e',
+    color: '#f5f5f5',
     marginBottom: 12,
   },
-  analyzeBtn:       { backgroundColor: '#4A90E2', borderRadius: 12, padding: 14, alignItems: 'center', marginBottom: 24 },
-  analyzeBtnText:   { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  analyzeBtn:       { backgroundColor: '#7ed957', borderRadius: 12, padding: 14, alignItems: 'center', marginBottom: 24 },
+  analyzeBtnText:   { color: '#111', fontWeight: 'bold', fontSize: 16 },
   section:          { marginBottom: 24 },
-  sectionTitle:     { fontSize: 15, fontWeight: '600', marginBottom: 10 },
+  sectionTitle:     { fontSize: 15, fontWeight: '600', marginBottom: 10, color: '#ccc' },
   audioRow:         { flexDirection: 'row', gap: 10, marginBottom: 8 },
-  audioBtn:         { flex: 1, backgroundColor: '#4A90E2', borderRadius: 10, padding: 13, alignItems: 'center' },
-  audioBtnSlow:     { backgroundColor: '#34C759' },
+  audioBtn:         { flex: 1, backgroundColor: '#2a5298', borderRadius: 10, padding: 13, alignItems: 'center' },
+  audioBtnSlow:     { backgroundColor: '#2e7d32' },
   audioBtnText:     { color: '#fff', fontWeight: '600', fontSize: 14 },
-  stopBtn:          { backgroundColor: '#FF3B30', borderRadius: 10, padding: 12, alignItems: 'center' },
+  stopBtn:          { backgroundColor: '#c62828', borderRadius: 10, padding: 12, alignItems: 'center' },
   stopBtnText:      { color: '#fff', fontWeight: '600' },
-  placeholderBox:   { backgroundColor: '#F7F8FA', borderRadius: 10, padding: 14 },
-  placeholderText:  { color: '#999', fontStyle: 'italic', lineHeight: 22 },
+  placeholderBox:   { backgroundColor: '#1e1e1e', borderRadius: 10, padding: 14 },
+  placeholderText:  { color: '#aaa', fontStyle: 'italic', lineHeight: 22 },
   wordChips:        { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip:             {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F0F4FF',
+    backgroundColor: '#1e1e2e',
     borderRadius: 20,
     paddingVertical: 6,
     paddingHorizontal: 14,
     borderWidth: 1,
-    borderColor: '#DCE8FF',
+    borderColor: '#333',
   },
-  chipChecked:      { backgroundColor: '#FFF3E0', borderColor: '#FF9500' },
-  chipCheck:        { color: '#FF9500', fontWeight: 'bold' },
-  chipText:         { fontSize: 14, color: '#333' },
-  chipTextChecked:  { color: '#FF9500', fontWeight: '600' },
-  addBtn:           { backgroundColor: '#FF9500', borderRadius: 12, padding: 16, alignItems: 'center', marginBottom: 20 },
-  addBtnText:       { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  chipChecked:      { backgroundColor: '#3e2a00', borderColor: '#ff914d' },
+  chipCheck:        { color: '#ff914d', fontWeight: 'bold' },
+  chipText:         { fontSize: 14, color: '#ddd' },
+  chipTextChecked:  { color: '#ff914d', fontWeight: '600' },
+  addBtn:           { backgroundColor: '#ff914d', borderRadius: 12, padding: 16, alignItems: 'center', marginBottom: 20 },
+  addBtnText:       { color: '#111', fontWeight: 'bold', fontSize: 16 },
 });

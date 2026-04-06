@@ -31,8 +31,7 @@ export default function MasteredScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>覚えた単語</Text>
+    <ScrollView contentContainerStyle={styles.container} style={styles.scrollBg}>
       <Text style={styles.count}>{trash.length} 件</Text>
 
       {trash.length > 0 && (
@@ -80,30 +79,30 @@ export default function MasteredScreen() {
 }
 
 const styles = StyleSheet.create({
-  container:    { padding: 20 },
-  title:        { fontSize: 22, fontWeight: 'bold', marginBottom: 4 },
-  count:        { color: '#999', marginBottom: 16 },
-  empty:        { color: '#AAA', textAlign: 'center', marginTop: 40, lineHeight: 24 },
+  scrollBg:     { backgroundColor: '#121212' },
+  container:    { padding: 20, paddingBottom: 40 },
+  count:        { color: '#888', marginBottom: 16, fontSize: 13 },
+  empty:        { color: '#666', textAlign: 'center', marginTop: 40, lineHeight: 24 },
 
   card:         {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F7F9FC',
+    backgroundColor: '#1e1e2e',
     borderRadius: 12,
     padding: 14,
     marginBottom: 10,
   },
   cardInfo:     { flex: 1 },
-  word:         { fontSize: 17, fontWeight: '600' },
-  reading:      { fontSize: 12, color: '#4A90E2', marginTop: 2 },
-  meaning:      { fontSize: 13, color: '#666', marginTop: 4 },
-  daysLeft:     { fontSize: 11, color: '#CCC', marginTop: 4 },
+  word:         { fontSize: 17, fontWeight: '600', color: '#f5f5f5' },
+  reading:      { fontSize: 12, color: '#7ed957', marginTop: 2 },
+  meaning:      { fontSize: 13, color: '#999', marginTop: 4 },
+  daysLeft:     { fontSize: 11, color: '#555', marginTop: 4 },
 
   actions:      { flexDirection: 'column', gap: 8, marginLeft: 10 },
-  restoreBtn:   { backgroundColor: '#4A90E2', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12 },
+  restoreBtn:   { backgroundColor: '#2a5298', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12 },
   restoreBtnText: { color: '#fff', fontSize: 13, fontWeight: '600' },
-  deleteBtn:    { borderWidth: 1, borderColor: '#FF3B30', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12 },
-  deleteBtnText:  { color: '#FF3B30', fontSize: 13, fontWeight: '600' },
-  deleteAllBtn:   { backgroundColor: '#FF3B30', borderRadius: 10, padding: 12, alignItems: 'center', marginBottom: 16 },
+  deleteBtn:    { borderWidth: 1, borderColor: '#c62828', borderRadius: 8, paddingVertical: 8, paddingHorizontal: 12 },
+  deleteBtnText:  { color: '#ef5350', fontSize: 13, fontWeight: '600' },
+  deleteAllBtn:   { backgroundColor: '#c62828', borderRadius: 10, padding: 12, alignItems: 'center', marginBottom: 16 },
   deleteAllBtnText: { color: '#fff', fontWeight: '600', fontSize: 14 },
 });

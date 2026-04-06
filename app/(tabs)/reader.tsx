@@ -380,15 +380,42 @@ export default function ReaderScreen() {
   const addTextHistory  = useProgressStore((s) => s.addTextHistory);
   const removeTextHistory = useProgressStore((s) => s.removeTextHistory);
 
-  /** 和訳を取得 */
+  /** 和訳を取得（500文字超は文単位で分割して送信） */
   const fetchTranslation = async (text: string) => {
     setIsTranslating(true);
     try {
-      const res = await fetch(
-        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|ja`
-      );
-      const data = await res.json();
-      setTranslation(data?.responseData?.translatedText ?? '翻訳に失敗しました');
+      const LIMIT = 480;
+      if (text.length <= LIMIT) {
+        const res = await fetch(
+          `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|ja`
+        );
+        const data = await res.json();
+        setTranslation(data?.responseData?.translatedText ?? '翻訳に失敗しました');
+      } else {
+        // 文単位で分割してチャンクにまとめる
+        const sentences = text.match(/[^.!?]+[.!?]+\s*/g) ?? [text];
+        const chunks: string[] = [];
+        let current = '';
+        for (const s of sentences) {
+          if ((current + s).length > LIMIT && current) {
+            chunks.push(current.trim());
+            current = s;
+          } else {
+            current += s;
+          }
+        }
+        if (current.trim()) chunks.push(current.trim());
+
+        const results: string[] = [];
+        for (const chunk of chunks) {
+          const res = await fetch(
+            `https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=en|ja`
+          );
+          const data = await res.json();
+          results.push(data?.responseData?.translatedText ?? '');
+        }
+        setTranslation(results.join('') || '翻訳に失敗しました');
+      }
     } catch {
       setTranslation('翻訳に失敗しました');
     } finally {

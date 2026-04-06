@@ -1,42 +1,13 @@
-# Xcode
-*.xcworkspace/xcuserdata/
-*.xcodeproj/xcuserdata/
-*.xcodeproj/project.xcworkspace/xcuserdata/
-xcuserdata/
-DerivedData/
-*.hmap
-*.ipa
-*.dSYM.zip
-*.dSYM
-
-# Build
-build/
-*.o
-*.d
-
-# Swift Package Manager
-.build/
-.swiftpm/
-Packages/
-Package.resolved
-
-# CocoaPods
-Pods/
-*.xcworkspace
-
-# Carthage
-Carthage/Build/
-
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-._*
-.Spotlight-V100
-.Trashes
-
-# Simulators
-*.moved-aside
-
-# Preview Content (generated)
-PreviewReplacement/
+node_modules/
+.expo/
+dist/
+*.orig.*
+web-build/
+.env
+.env.local
+Lib/
+Include/
+Scripts/
+share/
+etc/
+pyvenv.cfg

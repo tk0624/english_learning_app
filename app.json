@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "English Learning App",
+    "slug": "english-learning-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.yourname.englishlearningapp",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "スピーキング練習のためにマイクを使用します。",
+        "NSSpeechRecognitionUsageDescription": "発音チェックのために音声認識を使用します。"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.yourname.englishlearningapp",
+      "permissions": [
+        "RECORD_AUDIO"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-av",
+        {
+          "microphonePermission": "スピーキング練習のためにマイクを使用します。"
+        }
+      ]
+    ],
+    "scheme": "english-learning-app",
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "experiments": {
+      "baseUrl": "/english_learning_app"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "your-eas-project-id"
+      }
+    }
+  }
+}

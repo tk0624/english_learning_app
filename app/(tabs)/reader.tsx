@@ -679,7 +679,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 14,
     paddingRight: 40,
-    fontSize: 15,
+    fontSize: 16,
     minHeight: 140,
     backgroundColor: '#1e1e1e',
     color: '#f5f5f5',

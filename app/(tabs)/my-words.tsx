@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
   editBtnText:      { color: '#fff', fontSize: 13, fontWeight: '600' },
 
   editLabel:        { fontSize: 13, color: '#999', marginTop: 10, marginBottom: 4 },
-  editInput:        { borderWidth: 1, borderColor: '#333', borderRadius: 8, padding: 10, fontSize: 14, minHeight: 44, marginBottom: 8, backgroundColor: '#1a1a1a', color: '#f5f5f5' },
+  editInput:        { borderWidth: 1, borderColor: '#333', borderRadius: 8, padding: 10, fontSize: 16, minHeight: 44, marginBottom: 8, backgroundColor: '#1a1a1a', color: '#f5f5f5' },
   editActions:      { flexDirection: 'row', gap: 10, marginTop: 4 },
   cancelBtn:        { flex: 1, borderWidth: 1, borderColor: '#555', borderRadius: 10, padding: 12, alignItems: 'center' },
   cancelBtnText:    { color: '#999' },

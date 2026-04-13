@@ -174,18 +174,45 @@ const IRREGULAR: Record<string, string> = {
   carried:'carry', filled:'fill',
 };
 
+/** 語尾が -ing/-ed/-s に見えるが活用形ではない語 */
+const NON_INFLECTED = new Set([
+  // -ing（名詞・形容詞として定着した語）
+  'thing','bring','string','spring','king','ring','sing','wing',
+  'swing','cling','fling','sting','wring','ceiling','during',
+  'sibling','offspring','pudding','sterling','inkling','darling',
+  'duckling','underlying','lightning','dwelling','cunning','stunning',
+  'willing','blessing','proceedings','gaming','overwhelming',
+  'pending','according','regarding','surrounding','engineering',
+  'accounting','advertising','banking','bearing','binding','briefing',
+  'catering','coaching','computing','consulting','counseling',
+  'dwelling','earnings','embedding','fencing','filing','filming',
+  'fishing','flooring','funding','furnishing','gambling','gathering',
+  'grounding','handling','heading','imaging','ironing','landing',
+  'lasting','lingering','listing','lodging','longing','marking',
+  'nursing','offering','outing','packaging','parking','piping',
+  'plumbing','polling','printing','processing','programming',
+  'ranking','recording','roofing','ruling','sampling','screening',
+  'seating','serving','shipping','smoking','spacing','spelling',
+  'staffing','standing','stocking','storing','stuffing','surfing',
+  'timing','trading','upbringing','uprising','warning','wording',
+  // -ed（形容詞として定着した語）
+  'hundred','sacred','wicked','naked','hatred','kindred',
+  'alleged','beloved','crooked','dogged','jagged','learned',
+  'ragged','rugged','supposed','sophisticated','unprecedented',
+]);
+
 /** 接尾辞ベースのレンマタイズ（基本的な活用を原形に戻す） */
 function lemmatize(word: string): string {
   if (IRREGULAR[word]) return IRREGULAR[word];
+  if (NON_INFLECTED.has(word)) return word;
   // -ies → -y  (e.g. studies → study)
   if (word.endsWith('ies') && word.length > 4) return word.slice(0, -3) + 'y';
   // -ied → -y  (e.g. studied → study)
   if (word.endsWith('ied') && word.length > 4) return word.slice(0, -3) + 'y';
-  // -ying → -y is unlikely needed
-  // -ness → remove (e.g. happiness → happi → skip, too lossy — let it through)
   // -ing (running→run, making→make, getting→get)
   if (word.endsWith('ing') && word.length > 4) {
     const stem = word.slice(0, -3);
+    if (stem.length < 3) return word; // "thing" 等: stem が短すぎる場合は原形のまま
     // doubling: running → run
     if (stem.length >= 3 && stem[stem.length - 1] === stem[stem.length - 2]) {
       return stem.slice(0, -1);
@@ -198,6 +225,7 @@ function lemmatize(word: string): string {
   // -ed (played→play, stopped→stop, managed→manage)
   if (word.endsWith('ed') && word.length > 3) {
     const noEd = word.slice(0, -2);
+    if (noEd.length < 2) return word;
     if (noEd.length >= 3 && noEd[noEd.length - 1] === noEd[noEd.length - 2]) {
       return noEd.slice(0, -1);
     }
@@ -208,6 +236,11 @@ function lemmatize(word: string): string {
     const noD = word.slice(0, -1);
     if (BASIC_WORDS.has(noD)) return noD;
     return noEd;
+  }
+  // -ous / -us / -is / -ics / -ss / -ness: 複数形や活用ではないのでそのまま返す
+  if (word.endsWith('ous') || word.endsWith('us') || word.endsWith('is') ||
+      word.endsWith('ics') || word.endsWith('ss') || word.endsWith('ness')) {
+    return word;
   }
   // -es (watches→watch, goes→go)
   if (word.endsWith('es') && word.length > 3) {
@@ -318,6 +351,14 @@ const BASIC_WORDS = new Set([
 /** 最大フレーズ長（単語数） */
 const MAX_PHRASE_LEN = 5;
 
+/** 分離型句動詞検出用: 動詞と助詞の間に入る代名詞・冠詞 */
+const GAP_WORDS = new Set([
+  'it','him','her','them','us','me','you',
+  'this','that','the','a','an',
+  'my','his','her','our','their','its',
+  'itself','himself','herself','themselves','myself','yourself','ourselves',
+]);
+
 /** 英文からB2+レベルの単語・句動詞・イディオムを抽出 */
 function extractWords(text: string): string[] {
   const tokens = text.toLowerCase().match(/\b[a-z]+(?:'[a-z]+)?\b/g) ?? [];
@@ -325,14 +366,13 @@ function extractWords(text: string): string[] {
   const results: string[] = [];
   const usedIndexes = new Set<number>();
 
-  // Pass 1: 最長一致でフレーズを優先抽出
+  // Pass 1: 最長一致でフレーズを優先抽出（lemmatize で活用形にも対応）
   for (let i = 0; i < tokens.length; i++) {
     if (usedIndexes.has(i)) continue;
     let matched = false;
     for (let len = MAX_PHRASE_LEN; len >= 2; len--) {
       if (i + len > tokens.length) continue;
-      // 全ての単語位置を正規化して結合
-      const phraseTokens = tokens.slice(i, i + len).map((t) => IRREGULAR[t] ?? t);
+      const phraseTokens = tokens.slice(i, i + len).map((t) => lemmatize(t));
       const phrase = phraseTokens.join(' ');
       if (PHRASES.has(phrase)) {
         const idxs = Array.from({ length: len }, (_, k) => i + k);
@@ -341,6 +381,39 @@ function extractWords(text: string): string[] {
           idxs.forEach((idx) => usedIndexes.add(idx));
           matched = true;
           break;
+        }
+      }
+    }
+
+    // Pass 1.5: 分離型句動詞 — "pick them up" のように代名詞が間に入るパターン
+    if (!matched) {
+      const verb = lemmatize(tokens[i]);
+      // gap=1: verb + [pronoun/det] + particle
+      if (i + 2 < tokens.length && !usedIndexes.has(i + 1) && !usedIndexes.has(i + 2)) {
+        const mid = tokens[i + 1];
+        const particle = lemmatize(tokens[i + 2]);
+        if (GAP_WORDS.has(mid) && PHRASES.has(`${verb} ${particle}`)) {
+          results.push(`${verb} ${particle}`);
+          usedIndexes.add(i);
+          usedIndexes.add(i + 1);
+          usedIndexes.add(i + 2);
+          matched = true;
+        }
+      }
+      // gap=2: verb + [det] + [noun/pronoun] + particle (e.g. "turn the lights off")
+      if (!matched && i + 3 < tokens.length &&
+          !usedIndexes.has(i + 1) && !usedIndexes.has(i + 2) && !usedIndexes.has(i + 3)) {
+        const mid1 = tokens[i + 1];
+        const mid2 = tokens[i + 2];
+        const particle = lemmatize(tokens[i + 3]);
+        if (GAP_WORDS.has(mid1) && PHRASES.has(`${verb} ${particle}`)) {
+          // mid2 は名詞（何でもOK）、mid1 は冠詞・代名詞
+          results.push(`${verb} ${particle}`);
+          usedIndexes.add(i);
+          usedIndexes.add(i + 1);
+          usedIndexes.add(i + 2);
+          usedIndexes.add(i + 3);
+          matched = true;
         }
       }
     }

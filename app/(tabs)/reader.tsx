@@ -213,20 +213,26 @@ function lemmatize(word: string): string {
   if (word.endsWith('ing') && word.length > 4) {
     const stem = word.slice(0, -3);
     if (stem.length < 3) return word; // "thing" 等: stem が短すぎる場合は原形のまま
-    // doubling: running → run
+    // doubling: running → run（ただし -ss は基本形の一部: processing→process）
     if (stem.length >= 3 && stem[stem.length - 1] === stem[stem.length - 2]) {
+      if (stem[stem.length - 1] === 's') return stem; // -ss は自然な二重子音
       return stem.slice(0, -1);
     }
     // making → make
     if (!stem.endsWith('e') && BASIC_WORDS.has(stem + 'e')) return stem + 'e';
     if (BASIC_WORDS.has(stem)) return stem;
+    // B2+語: stem+e が単語として自然か判定（-se, -ce, -ze, -ge, -ve, -te, -ne, -re, -le）
+    const lastCh = stem[stem.length - 1];
+    if ('sczgvtnrl'.includes(lastCh)) return stem + 'e';
     return stem;
   }
   // -ed (played→play, stopped→stop, managed→manage)
   if (word.endsWith('ed') && word.length > 3) {
     const noEd = word.slice(0, -2);
     if (noEd.length < 2) return word;
+    // doubling: stopped→stop（ただし -ss は基本形の一部: compressed→compress）
     if (noEd.length >= 3 && noEd[noEd.length - 1] === noEd[noEd.length - 2]) {
+      if (noEd[noEd.length - 1] === 's') return noEd; // compress, assess, etc.
       return noEd.slice(0, -1);
     }
     if (word.endsWith('eed')) return word.slice(0, -2); // agreed→agree
@@ -235,6 +241,9 @@ function lemmatize(word: string): string {
     // -d removed (e.g. managed → manage)
     const noD = word.slice(0, -1);
     if (BASIC_WORDS.has(noD)) return noD;
+    // B2+語の fallback: noD が -se/-ce/-ze/-ge/-ve で終わるなら 'e' は語幹の一部
+    // (aroused→arouse, advanced→advance, recognized→recognize, perceived→perceive)
+    if (/[sczgv]e$/.test(noD)) return noD;
     return noEd;
   }
   // -ous / -us / -is / -ics / -ss / -ness: 複数形や活用ではないのでそのまま返す
@@ -542,13 +551,18 @@ export default function ReaderScreen() {
       setIsPlaying(false);
       return;
     }
-    Speech.speak(inputText, {
-      language: 'en-US',
-      rate,
-      onDone:  () => setIsPlaying(false),
-      onError: () => setIsPlaying(false),
-    });
-    setIsPlaying(true);
+    // Web Speech API は初回発話や連続発話で冒頭が途切れやすい。
+    // cancel → 短い遅延 で音声エンジンをリセットしてから発話する。
+    Speech.stop();
+    setTimeout(() => {
+      Speech.speak(inputText, {
+        language: 'en-US',
+        rate,
+        onDone:  () => setIsPlaying(false),
+        onError: () => setIsPlaying(false),
+      });
+      setIsPlaying(true);
+    }, 150);
   };
 
   const stopPlay = () => {

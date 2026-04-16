@@ -28,7 +28,10 @@ export default function MyWordsScreen() {
   };
 
   const playWord = (item: MyVocabularyItem) => {
-    Speech.speak(item.word, { language: 'en-US', rate: 0.8 });
+    Speech.stop();
+    setTimeout(() => {
+      Speech.speak(item.word, { language: 'en-US', rate: 0.8 });
+    }, 150);
   };
 
   const searchWeb = (word: string) => {
@@ -216,7 +219,7 @@ function WordCard({
                   <View style={styles.exampleRow}>
                     <Text style={styles.example}>{item.example}</Text>
                     <TouchableOpacity
-                      onPress={() => Speech.speak(item.example, { language: 'en-US', rate: 0.8 })}
+                      onPress={() => { Speech.stop(); setTimeout(() => Speech.speak(item.example, { language: 'en-US', rate: 0.8 }), 150); }}
                     >
                       <Text style={styles.playIcon}>🔊</Text>
                     </TouchableOpacity>

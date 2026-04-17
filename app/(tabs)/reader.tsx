@@ -201,71 +201,89 @@ const NON_INFLECTED = new Set([
   'ragged','rugged','supposed','sophisticated','unprecedented',
 ]);
 
-/** 接尾辞ベースのレンマタイズ（基本的な活用を原形に戻す） */
+/**
+ * 接尾辞ベースのレンマタイズ
+ * 方針:
+ *   1. IRREGULAR / NON_INFLECTED で既知語を即決
+ *   2. 接尾辞ごとに、基本形の候補を BASIC_WORDS で検証（高信頼）
+ *   3. B2+ 語は [sczgv]+e パターンのみ適用（高信頼）
+ *   4. いずれにも該当しなければ元の活用形を維持（壊れた形を返さない）
+ */
 function lemmatize(word: string): string {
   if (IRREGULAR[word]) return IRREGULAR[word];
   if (NON_INFLECTED.has(word)) return word;
-  // -ies → -y  (e.g. studies → study)
+
+  // ── -ies → -y（高信頼: studies→study） ──
   if (word.endsWith('ies') && word.length > 4) return word.slice(0, -3) + 'y';
-  // -ied → -y  (e.g. studied → study)
+  // ── -ied → -y ──
   if (word.endsWith('ied') && word.length > 4) return word.slice(0, -3) + 'y';
-  // -ing (running→run, making→make, getting→get)
+
+  // ── -ing ──
   if (word.endsWith('ing') && word.length > 4) {
     const stem = word.slice(0, -3);
-    if (stem.length < 3) return word; // "thing" 等: stem が短すぎる場合は原形のまま
-    // doubling: running → run（ただし -ss は基本形の一部: processing→process）
-    if (stem.length >= 3 && stem[stem.length - 1] === stem[stem.length - 2]) {
-      if (stem[stem.length - 1] === 's') return stem; // -ss は自然な二重子音
-      return stem.slice(0, -1);
-    }
-    // making → make
-    if (!stem.endsWith('e') && BASIC_WORDS.has(stem + 'e')) return stem + 'e';
+    if (stem.length < 3) return word;
+    // 1) stem が既知語 → 即決 (call, play, work …)
     if (BASIC_WORDS.has(stem)) return stem;
-    // B2+語: stem+e が単語として自然か判定（-se, -ce, -ze, -ge, -ve, -te, -ne, -re, -le）
-    const lastCh = stem[stem.length - 1];
-    if ('sczgvtnrl'.includes(lastCh)) return stem + 'e';
-    return stem;
+    // 2) stem+e が既知語 → 即決 (make, write, come …)
+    if (BASIC_WORDS.has(stem + 'e')) return stem + 'e';
+    // 3) 二重子音 → 一文字削除を既知語でチェック (runn→run, gett→get)
+    if (stem[stem.length - 1] === stem[stem.length - 2]) {
+      const u = stem.slice(0, -1);
+      if (BASIC_WORDS.has(u)) return u;
+      // B2+ 二重子音: 確信なし → 元の形を維持
+      return word;
+    }
+    // 4) B2+ 高信頼: stem が s/c/z/g/v で終わる → +e (compose, arouse, etc.)
+    if (/[sczgv]$/.test(stem)) return stem + 'e';
+    // 5) 確信なし → 元の形を維持
+    return word;
   }
-  // -ed (played→play, stopped→stop, managed→manage)
+
+  // ── -ed ──
   if (word.endsWith('ed') && word.length > 3) {
     const noEd = word.slice(0, -2);
+    const noD  = word.slice(0, -1);
     if (noEd.length < 2) return word;
-    // doubling: stopped→stop（ただし -ss は基本形の一部: compressed→compress）
-    if (noEd.length >= 3 && noEd[noEd.length - 1] === noEd[noEd.length - 2]) {
-      if (noEd[noEd.length - 1] === 's') return noEd; // compress, assess, etc.
-      return noEd.slice(0, -1);
-    }
-    if (word.endsWith('eed')) return word.slice(0, -2); // agreed→agree
-    if (!noEd.endsWith('e') && BASIC_WORDS.has(noEd + 'e')) return noEd + 'e';
+    // 1) noEd が既知語 → 即決 (play, call, work …)
     if (BASIC_WORDS.has(noEd)) return noEd;
-    // -d removed (e.g. managed → manage)
-    const noD = word.slice(0, -1);
+    // 2) noD が既知語 → 即決 (manage, save, use …)
     if (BASIC_WORDS.has(noD)) return noD;
-    // B2+語の fallback: noD が -se/-ce/-ze/-ge/-ve で終わるなら 'e' は語幹の一部
-    // (aroused→arouse, advanced→advance, recognized→recognize, perceived→perceive)
+    // 3) noEd+e が既知語 (believe …)
+    if (BASIC_WORDS.has(noEd + 'e')) return noEd + 'e';
+    // 4) 二重子音 → stop, get, run 等
+    if (noEd.length >= 3 && noEd[noEd.length - 1] === noEd[noEd.length - 2]) {
+      const u = noEd.slice(0, -1);
+      if (BASIC_WORDS.has(u)) return u;
+      return word;
+    }
+    // 5) eed → ee (agreed → agree)
+    if (word.endsWith('eed')) return word.slice(0, -2);
+    // 6) B2+ 高信頼: noD が [sczgv]+e で終わる (arouse, advance, recognize …)
     if (/[sczgv]e$/.test(noD)) return noD;
-    return noEd;
+    // 7) 確信なし → 元の形を維持
+    return word;
   }
-  // -ous / -us / -is / -ics / -ss / -ness: 複数形や活用ではないのでそのまま返す
+
+  // ── 活用ではない語尾ガード ──
   if (word.endsWith('ous') || word.endsWith('us') || word.endsWith('is') ||
       word.endsWith('ics') || word.endsWith('ss') || word.endsWith('ness')) {
     return word;
   }
-  // -es (watches→watch, goes→go)
+  // ── -es (watches→watch) ──
   if (word.endsWith('es') && word.length > 3) {
     if (word.endsWith('shes') || word.endsWith('ches') || word.endsWith('xes') || word.endsWith('zes') || word.endsWith('sses')) {
       return word.slice(0, -2);
     }
   }
-  // -s (cats→cat)
+  // ── -s (cats→cat) ──
   if (word.endsWith('s') && !word.endsWith('ss') && word.length > 3) {
     return word.slice(0, -1);
   }
-  // -ly → base adjective (carefully→careful)
+  // ── -ly → 形容詞 (carefully→careful) ──
   if (word.endsWith('ly') && word.length > 4) {
     const base = word.slice(0, -2);
     if (BASIC_WORDS.has(base)) return base;
-    return word; // keep adverb if base is not basic
+    return word;
   }
   return word;
 }

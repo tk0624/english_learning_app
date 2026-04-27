@@ -9,8 +9,10 @@ import {
 import { useProgressStore } from '@/store/progressStore';
 
 export default function MasteredScreen() {
-  const { trash, restoreFromTrash, removeFromTrash, purgeOldTrash } =
+  const { trash, restoreFromTrash, removeFromTrash, purgeOldTrash, myVocabulary } =
     useProgressStore();
+
+  const totalEver = myVocabulary.length + trash.length;
 
   useEffect(() => {
     purgeOldTrash();
@@ -32,7 +34,21 @@ export default function MasteredScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container} style={styles.scrollBg}>
-      <Text style={styles.count}>{trash.length} 件</Text>
+
+      {/* ── Stats Card ── */}
+      <View style={styles.statsCard}>
+        <View style={styles.statsRow}>
+          <View style={styles.statItem}>
+            <Text style={[styles.statValue, { color: '#7ed957' }]}>{trash.length}</Text>
+            <Text style={styles.statLabel}>覚えた単語</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={[styles.statValue, { color: '#ff914d' }]}>{totalEver}</Text>
+            <Text style={styles.statLabel}>累積登録</Text>
+          </View>
+        </View>
+      </View>
 
       {trash.length > 0 && (
         <TouchableOpacity style={styles.deleteAllBtn} onPress={handleDeleteAll}>
@@ -83,6 +99,14 @@ const styles = StyleSheet.create({
   container:    { padding: 20, paddingBottom: 40 },
   count:        { color: '#888', marginBottom: 16, fontSize: 13 },
   empty:        { color: '#666', textAlign: 'center', marginTop: 40, lineHeight: 24 },
+
+  // Stats Card
+  statsCard:    { backgroundColor: '#1a1a2e', borderRadius: 16, padding: 18, marginBottom: 16 },
+  statsRow:     { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' },
+  statItem:     { alignItems: 'center', flex: 1 },
+  statValue:    { fontSize: 26, fontWeight: 'bold', color: '#f5f5f5' },
+  statLabel:    { fontSize: 12, color: '#888', marginTop: 4 },
+  statDivider:  { width: 1, height: 40, backgroundColor: '#333' },
 
   card:         {
     flexDirection: 'row',

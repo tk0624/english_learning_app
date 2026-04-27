@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Linking,
+  Platform,
 } from 'react-native';
 import * as Speech from 'expo-speech';
 import { useProgressStore } from '@/store/progressStore';
@@ -15,13 +16,14 @@ import { lookupWord, translateToJa } from '@/utils/dictionaryApi';
 import type { MyVocabularyItem } from '@/types';
 
 export default function MyWordsScreen() {
-  const { myVocabulary, masterWord, updateVocabulary } =
+  const { myVocabulary, masterWord, updateVocabulary, trash, bulkImportVocabulary } =
     useProgressStore();
   const [expanded, setExpanded] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editMeaning, setEditMeaning] = useState('');
   const [editExample, setEditExample] = useState('');
   const [fetchingId, setFetchingId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleMaster = (id: string) => {
     masterWord(id);
@@ -87,9 +89,86 @@ export default function MyWordsScreen() {
     }
   };
 
+  /** バックアップ: JSONダウンロード */
+  const handleBackup = () => {
+    if (Platform.OS !== 'web') return;
+    const data = { myVocabulary, exportedAt: new Date().toISOString() };
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `vocab_backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  /** リストア: JSONファイルから復元 */
+  const handleRestoreClick = () => {
+    if (Platform.OS !== 'web') return;
+    fileInputRef.current?.click();
+  };
+
+  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      const items: MyVocabularyItem[] = Array.isArray(data) ? data : data.myVocabulary;
+      if (!Array.isArray(items)) throw new Error('invalid');
+      await bulkImportVocabulary(items);
+      window.alert(`${items.length} 件をインポートしました（重複除外済み）`);
+    } catch {
+      window.alert('ファイルの形式が不正です');
+    }
+    e.target.value = '';
+  };
+
+  const totalMastered = trash.length;
+  const totalEver = myVocabulary.length + totalMastered;
+
   return (
     <ScrollView contentContainerStyle={styles.container} style={styles.scrollBg}>
-      <Text style={styles.count}>{myVocabulary.length} 件</Text>
+
+      {/* ── Stats Card ── */}
+      <View style={styles.statsCard}>
+        <View style={styles.statsRow}>
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{myVocabulary.length}</Text>
+            <Text style={styles.statLabel}>学習中</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={[styles.statValue, { color: '#7ed957' }]}>{totalMastered}</Text>
+            <Text style={styles.statLabel}>覚えた</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={[styles.statValue, { color: '#ff914d' }]}>{totalEver}</Text>
+            <Text style={styles.statLabel}>累積登録</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* ── バックアップ ── */}
+      <View style={styles.backupRow}>
+        <TouchableOpacity style={styles.backupBtn} onPress={handleBackup} disabled={myVocabulary.length === 0}>
+          <Text style={styles.backupBtnText}>📤 バックアップ</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.restoreBtn} onPress={handleRestoreClick}>
+          <Text style={styles.restoreBtnText}>📥 リストア</Text>
+        </TouchableOpacity>
+      </View>
+      {Platform.OS === 'web' && (
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json"
+          style={{ display: 'none' }}
+          onChange={onFileChange as unknown as React.ChangeEventHandler<HTMLInputElement>}
+        />
+      )}
 
       {myVocabulary.length === 0 ? (
         <Text style={styles.empty}>
@@ -267,6 +346,21 @@ const styles = StyleSheet.create({
   container:        { padding: 20, paddingBottom: 40 },
   count:            { color: '#888', marginBottom: 16, fontSize: 13 },
   empty:            { color: '#666', textAlign: 'center', marginTop: 20, lineHeight: 24 },
+
+  // Stats Card
+  statsCard:        { backgroundColor: '#1a1a2e', borderRadius: 16, padding: 18, marginBottom: 12 },
+  statsRow:         { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' },
+  statItem:         { alignItems: 'center', flex: 1 },
+  statValue:        { fontSize: 26, fontWeight: 'bold', color: '#f5f5f5' },
+  statLabel:        { fontSize: 12, color: '#888', marginTop: 4 },
+  statDivider:      { width: 1, height: 40, backgroundColor: '#333' },
+
+  // Backup
+  backupRow:        { flexDirection: 'row', gap: 10, marginBottom: 16 },
+  backupBtn:        { flex: 1, backgroundColor: '#1e3a5f', borderRadius: 10, padding: 12, alignItems: 'center' },
+  backupBtnText:    { color: '#7eb8f5', fontWeight: '600', fontSize: 13 },
+  restoreBtn:       { flex: 1, backgroundColor: '#1a2e1a', borderRadius: 10, padding: 12, alignItems: 'center' },
+  restoreBtnText:   { color: '#7ed957', fontWeight: '600', fontSize: 13 },
 
   card:             { backgroundColor: '#1e1e2e', borderRadius: 14, marginBottom: 10, overflow: 'hidden' },
   cardHeader:       { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 14 },

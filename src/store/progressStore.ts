@@ -40,6 +40,7 @@ interface ProgressStore {
   addToVocabulary: (item: MyVocabularyItem) => Promise<void>;
   updateVocabulary: (id: string, patch: Partial<MyVocabularyItem>) => Promise<void>;
   masterWord: (id: string) => Promise<void>;
+  bulkImportVocabulary: (items: MyVocabularyItem[]) => Promise<void>;
   restoreFromTrash: (trashId: string) => Promise<void>;
   removeFromTrash: (trashId: string) => Promise<void>;
   purgeOldTrash: () => Promise<void>;
@@ -137,7 +138,7 @@ export const useProgressStore = create<ProgressStore>((set, get) => ({
       (v) => v.word.toLowerCase() === item.word.toLowerCase()
     );
     if (exists) return;
-    const myVocabulary = [...get().myVocabulary, item];
+    const myVocabulary = [item, ...get().myVocabulary];
     set({ myVocabulary });
     await AsyncStorage.setItem(VOCAB_KEY, JSON.stringify(myVocabulary));
   },
@@ -165,6 +166,16 @@ export const useProgressStore = create<ProgressStore>((set, get) => ({
       AsyncStorage.setItem(VOCAB_KEY, JSON.stringify(myVocabulary)),
       AsyncStorage.setItem(TRASH_KEY, JSON.stringify(trash)),
     ]);
+  },
+
+  bulkImportVocabulary: async (items) => {
+    const existing = get().myVocabulary;
+    const existingWords = new Set(existing.map((v) => v.word.toLowerCase()));
+    const newItems = items.filter((i) => !existingWords.has(i.word.toLowerCase()));
+    if (newItems.length === 0) return;
+    const myVocabulary = [...existing, ...newItems];
+    set({ myVocabulary });
+    await AsyncStorage.setItem(VOCAB_KEY, JSON.stringify(myVocabulary));
   },
 
   restoreFromTrash: async (trashId) => {

@@ -8,6 +8,8 @@ import {
   StyleSheet,
   ActivityIndicator,
   Linking,
+  Platform,
+  Alert,
 } from 'react-native';
 import * as Speech from 'expo-speech';
 import { useProgressStore } from '@/store/progressStore';
@@ -87,13 +89,59 @@ const statsStyles = StyleSheet.create({
 });
 
 export default function MyWordsScreen() {
-  const { myVocabulary, masterWord, updateVocabulary, vocabStats } =
+  const { myVocabulary, masterWord, updateVocabulary, vocabStats, bulkImportVocabulary } =
     useProgressStore();
   const [expanded, setExpanded] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editMeaning, setEditMeaning] = useState('');
   const [editExample, setEditExample] = useState('');
   const [fetchingId, setFetchingId] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
+
+  // ── エクスポート ───────────────────────────────────────
+  const handleExport = () => {
+    if (Platform.OS !== 'web') return;
+    const payload = { version: 1, exportedAt: new Date().toISOString(), vocabulary: myVocabulary };
+    const json  = JSON.stringify(payload, null, 2);
+    const blob  = new Blob([json], { type: 'application/json' });
+    const url   = URL.createObjectURL(blob);
+    const a     = document.createElement('a');
+    a.href      = url;
+    a.download  = `vocabulary-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // ── インポート ───────────────────────────────────────
+  const handleImport = () => {
+    if (Platform.OS !== 'web') return;
+    const input = document.createElement('input');
+    input.type   = 'file';
+    input.accept = '.json';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      setImporting(true);
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        // フォーマットバリデーション
+        const items: any[] = Array.isArray(parsed)
+          ? parsed
+          : Array.isArray(parsed.vocabulary) ? parsed.vocabulary : null;
+        if (!items) { window.alert('ファイルの形式が正しくありません'); return; }
+        const count = await bulkImportVocabulary(items);
+        window.alert(`${count} 語をインポートしました。`);
+      } catch {
+        window.alert('インポートに失敗しました。JSONファイルを確認してください。');
+      } finally {
+        setImporting(false);
+      }
+    };
+    input.click();
+  };
 
   const handleMaster = (id: string) => {
     masterWord(id);
@@ -166,6 +214,19 @@ export default function MyWordsScreen() {
         totalAdded={vocabStats.totalAdded}
         totalMastered={vocabStats.totalMastered}
       />
+
+      {/* バックアップ操作 */}
+      <View style={styles.backupRow}>
+        <TouchableOpacity style={styles.exportBtn} onPress={handleExport} disabled={myVocabulary.length === 0}>
+          <Text style={styles.exportBtnText}>📥 バックアップ保存</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.importBtn} onPress={handleImport} disabled={importing}>
+          {importing
+            ? <ActivityIndicator color="#fff" size="small" />
+            : <Text style={styles.importBtnText}>📤 バックアップ復元</Text>
+          }
+        </TouchableOpacity>
+      </View>
 
       {myVocabulary.length === 0 ? (
         <Text style={styles.empty}>
@@ -343,6 +404,12 @@ const styles = StyleSheet.create({
   container:        { padding: 20, paddingBottom: 40 },
   count:            { color: '#888', marginBottom: 16, fontSize: 13 },
   empty:            { color: '#666', textAlign: 'center', marginTop: 20, lineHeight: 24 },
+
+  backupRow:        { flexDirection: 'row', gap: 8, marginBottom: 16 },
+  exportBtn:        { flex: 1, backgroundColor: '#2a3a2a', borderWidth: 1, borderColor: '#7ed957', borderRadius: 10, padding: 10, alignItems: 'center' },
+  exportBtnText:    { color: '#7ed957', fontSize: 13, fontWeight: '600' },
+  importBtn:        { flex: 1, backgroundColor: '#2a2a3e', borderWidth: 1, borderColor: '#5856D6', borderRadius: 10, padding: 10, alignItems: 'center' },
+  importBtnText:    { color: '#a0a0ff', fontSize: 13, fontWeight: '600' },
 
   card:             { backgroundColor: '#1e1e2e', borderRadius: 14, marginBottom: 10, overflow: 'hidden' },
   cardHeader:       { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 14 },

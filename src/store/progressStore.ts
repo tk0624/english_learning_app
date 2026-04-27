@@ -48,6 +48,7 @@ interface ProgressStore {
   // My Words
   addToVocabulary: (item: MyVocabularyItem) => Promise<void>;
   updateVocabulary: (id: string, patch: Partial<MyVocabularyItem>) => Promise<void>;
+  bulkImportVocabulary: (items: MyVocabularyItem[]) => Promise<number>;
   masterWord: (id: string) => Promise<void>;
   restoreFromTrash: (trashId: string) => Promise<void>;
   removeFromTrash: (trashId: string) => Promise<void>;
@@ -169,6 +170,26 @@ export const useProgressStore = create<ProgressStore>((set, get) => ({
     );
     set({ myVocabulary });
     await AsyncStorage.setItem(VOCAB_KEY, JSON.stringify(myVocabulary));
+  },
+
+  bulkImportVocabulary: async (items) => {
+    const existing = new Set(
+      get().myVocabulary.map((v) => v.word.toLowerCase())
+    );
+    const newItems = items.filter((i) => !existing.has(i.word.toLowerCase()));
+    if (newItems.length === 0) return 0;
+    const myVocabulary = [...newItems, ...get().myVocabulary];
+    const prevStats = get().vocabStats;
+    const vocabStats: VocabStats = {
+      ...prevStats,
+      totalAdded: prevStats.totalAdded + newItems.length,
+    };
+    set({ myVocabulary, vocabStats });
+    await Promise.all([
+      AsyncStorage.setItem(VOCAB_KEY, JSON.stringify(myVocabulary)),
+      AsyncStorage.setItem(STATS_KEY, JSON.stringify(vocabStats)),
+    ]);
+    return newItems.length;
   },
 
   masterWord: async (id) => {

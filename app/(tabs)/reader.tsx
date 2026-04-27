@@ -524,7 +524,7 @@ export default function ReaderScreen() {
   };
 
   const analyze = () => {
-    if (!inputText.trim()) return;
+    if (!inputText.trim()) { window.alert('テキストが空です'); return; }
     // 日本語（ひらがな・カタカナ・漢字・全角記号）が出現したらそこ以降を切り捨て
     const jpMatch = inputText.search(/[\u3000-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]/);
     const cleanText = jpMatch >= 0 ? inputText.slice(0, jpMatch).trim() : inputText.trim();

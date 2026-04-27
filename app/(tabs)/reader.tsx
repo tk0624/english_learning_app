@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  Pressable,
   ScrollView,
   StyleSheet,
   ActivityIndicator,
@@ -524,7 +525,7 @@ export default function ReaderScreen() {
   };
 
   const analyze = () => {
-    if (!inputText.trim()) { window.alert('テキストが空です'); return; }
+    if (!inputText.trim()) return;
     // 日本語（ひらがな・カタカナ・漢字・全角記号）が出現したらそこ以降を切り捨て
     const jpMatch = inputText.search(/[\u3000-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]/);
     const cleanText = jpMatch >= 0 ? inputText.slice(0, jpMatch).trim() : inputText.trim();
@@ -649,9 +650,10 @@ export default function ReaderScreen() {
         )}
       </View>
 
-      <TouchableOpacity style={styles.analyzeBtn} onPress={analyze}>
+      <Pressable style={styles.analyzeBtn} onPress={analyze} onClick={analyze as any}>
         <Text style={styles.analyzeBtnText}>分析する</Text>
-      </TouchableOpacity>
+      </Pressable>
+      <Text style={{ color: '#333', fontSize: 10, textAlign: 'right', marginTop: 2 }}>v7</Text>
 
       {/* ── 履歴 ── */}
       {textHistory.length > 0 && (

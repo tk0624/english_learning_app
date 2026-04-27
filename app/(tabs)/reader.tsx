@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   ScrollView,
   StyleSheet,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import * as Speech from 'expo-speech';
 import { useProgressStore } from '@/store/progressStore';
@@ -645,9 +646,31 @@ export default function ReaderScreen() {
             </TouchableOpacity>
           )}
         </View>
-        <TouchableOpacity style={styles.analyzeBtn} onPress={analyze} activeOpacity={0.7}>
-          <Text style={styles.analyzeBtnText}>分析する</Text>
-        </TouchableOpacity>
+        {Platform.OS === 'web' ? (
+          <button
+            onClick={analyze}
+            style={{
+              backgroundColor: '#7ed957',
+              borderRadius: 12,
+              padding: 14,
+              textAlign: 'center',
+              marginBottom: 12,
+              border: 'none',
+              width: '100%',
+              fontSize: 16,
+              fontWeight: 'bold',
+              color: '#111',
+              cursor: 'pointer',
+              display: 'block',
+            } as React.CSSProperties}
+          >
+            分析する
+          </button>
+        ) : (
+          <TouchableOpacity style={styles.analyzeBtn} onPress={analyze} activeOpacity={0.7}>
+            <Text style={styles.analyzeBtnText}>分析する</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* ── 結果エリア（ScrollView内） ── */}

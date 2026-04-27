@@ -14,8 +14,80 @@ import { useProgressStore } from '@/store/progressStore';
 import { lookupWord, translateToJa } from '@/utils/dictionaryApi';
 import type { MyVocabularyItem } from '@/types';
 
+// ── マイルストーン & 統計カード ──────────────────────────────
+
+const MILESTONES = [10, 25, 50, 100, 200, 300, 500];
+
+function getMilestoneInfo(count: number): { next: number; progress: number } {
+  const idx = MILESTONES.findIndex(m => m > count);
+  if (idx === -1) {
+    const next = Math.ceil((count + 1) / 100) * 100;
+    const prev = Math.floor(count / 100) * 100;
+    return { next, progress: prev === next ? 0 : (count - prev) / (next - prev) };
+  }
+  const next = MILESTONES[idx];
+  const prev = idx > 0 ? MILESTONES[idx - 1] : 0;
+  return { next, progress: count === 0 ? 0 : (count - prev) / (next - prev) };
+}
+
+function getBadgeColor(count: number): string {
+  if (count >= 500) return '#00bfff';
+  if (count >= 200) return '#ff914d';
+  if (count >= 100) return '#7ed957';
+  if (count >= 50)  return '#ffd700';
+  if (count >= 25)  return '#b0b0b0';
+  if (count >= 10)  return '#cd7f32';
+  return '#555';
+}
+
+function StatsCard({
+  current, totalAdded, totalMastered,
+}: { current: number; totalAdded: number; totalMastered: number }) {
+  const { next, progress } = getMilestoneInfo(totalAdded);
+  const barColor  = getBadgeColor(totalAdded);
+  const fillWidth = (Math.max(0, Math.min(progress * 100, 100)).toFixed(1) + '%') as any;
+  return (
+    <View style={statsStyles.card}>
+      <View style={statsStyles.row}>
+        <View style={statsStyles.item}>
+          <Text style={statsStyles.num}>{current}</Text>
+          <Text style={statsStyles.lbl}>📚 学習中</Text>
+        </View>
+        <View style={statsStyles.sep} />
+        <View style={statsStyles.item}>
+          <Text style={statsStyles.num}>{totalAdded}</Text>
+          <Text style={statsStyles.lbl}>📖 累積登録</Text>
+        </View>
+        <View style={statsStyles.sep} />
+        <View style={statsStyles.item}>
+          <Text style={[statsStyles.num, { color: '#7ed957' }]}>{totalMastered}</Text>
+          <Text style={statsStyles.lbl}>✅ 累積習得</Text>
+        </View>
+      </View>
+      <View style={statsStyles.barBg}>
+        <View style={[statsStyles.barFill, { width: fillWidth, backgroundColor: barColor }]} />
+      </View>
+      <Text style={statsStyles.mileTxt}>
+        🎯 次の目標 {next}語 — あと {next - totalAdded}語
+      </Text>
+    </View>
+  );
+}
+
+const statsStyles = StyleSheet.create({
+  card:    { backgroundColor: '#1e1e2e', borderRadius: 14, padding: 16, marginBottom: 16 },
+  row:     { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 12 },
+  item:    { alignItems: 'center', flex: 1 },
+  num:     { fontSize: 26, fontWeight: 'bold', color: '#f5f5f5' },
+  lbl:     { fontSize: 11, color: '#888', marginTop: 2 },
+  sep:     { width: 1, backgroundColor: '#2a2a3e', marginVertical: 4 },
+  barBg:   { height: 6, backgroundColor: '#2a2a3e', borderRadius: 3, marginBottom: 8, overflow: 'hidden' },
+  barFill: { height: 6, borderRadius: 3 },
+  mileTxt: { fontSize: 12, color: '#666', textAlign: 'center' },
+});
+
 export default function MyWordsScreen() {
-  const { myVocabulary, masterWord, updateVocabulary } =
+  const { myVocabulary, masterWord, updateVocabulary, vocabStats } =
     useProgressStore();
   const [expanded, setExpanded] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -89,7 +161,11 @@ export default function MyWordsScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container} style={styles.scrollBg}>
-      <Text style={styles.count}>{myVocabulary.length} 件</Text>
+      <StatsCard
+        current={myVocabulary.length}
+        totalAdded={vocabStats.totalAdded}
+        totalMastered={vocabStats.totalMastered}
+      />
 
       {myVocabulary.length === 0 ? (
         <Text style={styles.empty}>

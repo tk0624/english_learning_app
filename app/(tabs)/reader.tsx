@@ -7,7 +7,6 @@ import {
   ScrollView,
   StyleSheet,
   ActivityIndicator,
-  Platform,
 } from 'react-native';
 import * as Speech from 'expo-speech';
 import { useProgressStore } from '@/store/progressStore';
@@ -525,7 +524,6 @@ export default function ReaderScreen() {
   };
 
   const analyze = () => {
-    window.alert(`v9: clicked, chars=${inputText.length}`);
     if (!inputText.trim()) return;
     // 日本語（ひらがな・カタカナ・漢字・全角記号）が出現したらそこ以降を切り捨て
     const jpMatch = inputText.search(/[\u3000-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]/);
@@ -628,48 +626,36 @@ export default function ReaderScreen() {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      keyboardShouldPersistTaps="handled"
-      style={styles.scrollBg}
-    >
-      {/* ── テキスト入力 ── */}
-      <View style={styles.inputWrapper}>
-        <TextInput
-          style={styles.textInput}
-          multiline
-          placeholder="英文をここに貼り付けてください..."
-          placeholderTextColor="#666"
-          value={inputText}
-          onChangeText={(t) => { setInputText(t); setIsAnalyzed(false); }}
-          textAlignVertical="top"
-        />
-        {inputText.length > 0 && (
-          <TouchableOpacity style={styles.clearBtn} onPress={clearInput}>
-            <Text style={styles.clearBtnText}>✕</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-      <Text style={{ color: '#888', fontSize: 11, marginBottom: 4 }}>文字数: {inputText.length}</Text>
-
-      {Platform.OS === 'web' ? (
-        <button
-          onClick={analyze}
-          style={{
-            backgroundColor: '#7ed957', borderRadius: 12, padding: 14,
-            width: '100%', border: 'none', marginBottom: 12, cursor: 'pointer',
-            fontSize: 16, fontWeight: 'bold', color: '#111',
-            WebkitAppearance: 'none', touchAction: 'manipulation',
-          } as React.CSSProperties}
-        >
-          分析する
-        </button>
-      ) : (
-        <TouchableOpacity style={styles.analyzeBtn} onPress={analyze}>
+    <View style={{ flex: 1, backgroundColor: '#121212' }}>
+      {/* ── 入力エリア（ScrollView外） ── */}
+      <View style={{ padding: 20, paddingBottom: 0 }}>
+        <View style={styles.inputWrapper}>
+          <TextInput
+            style={styles.textInput}
+            multiline
+            placeholder="英文をここに貼り付けてください..."
+            placeholderTextColor="#666"
+            value={inputText}
+            onChangeText={(t) => { setInputText(t); setIsAnalyzed(false); }}
+            textAlignVertical="top"
+          />
+          {inputText.length > 0 && (
+            <TouchableOpacity style={styles.clearBtn} onPress={clearInput}>
+              <Text style={styles.clearBtnText}>✕</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+        <TouchableOpacity style={styles.analyzeBtn} onPress={analyze} activeOpacity={0.7}>
           <Text style={styles.analyzeBtnText}>分析する</Text>
         </TouchableOpacity>
-      )}
-      <Text style={{ color: '#333', fontSize: 10, textAlign: 'right', marginTop: 2 }}>v10</Text>
+      </View>
+
+      {/* ── 結果エリア（ScrollView内） ── */}
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        style={styles.scrollBg}
+      >
 
       {/* ── 履歴 ── */}
       {textHistory.length > 0 && (
@@ -788,7 +774,8 @@ export default function ReaderScreen() {
           )}
         </>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 

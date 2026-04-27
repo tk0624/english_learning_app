@@ -525,6 +525,7 @@ export default function ReaderScreen() {
   };
 
   const analyze = () => {
+    window.alert(`v9: clicked, chars=${inputText.length}`);
     if (!inputText.trim()) return;
     // 日本語（ひらがな・カタカナ・漢字・全角記号）が出現したらそこ以降を切り捨て
     const jpMatch = inputText.search(/[\u3000-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]/);
@@ -649,6 +650,7 @@ export default function ReaderScreen() {
           </TouchableOpacity>
         )}
       </View>
+      <Text style={{ color: '#888', fontSize: 11, marginBottom: 4 }}>文字数: {inputText.length}</Text>
 
       {Platform.OS === 'web' ? (
         <div

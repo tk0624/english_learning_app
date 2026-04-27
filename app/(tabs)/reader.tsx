@@ -627,58 +627,54 @@ export default function ReaderScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#121212' }}>
-      {/* ── 入力エリア（ScrollView外） ── */}
-      <View style={{ padding: 20, paddingBottom: 0 }}>
-        <View style={styles.inputWrapper}>
-          <TextInput
-            style={styles.textInput}
-            multiline
-            placeholder="英文をここに貼り付けてください..."
-            placeholderTextColor="#666"
-            value={inputText}
-            onChangeText={(t) => { setInputText(t); setIsAnalyzed(false); }}
-            textAlignVertical="top"
-          />
-          {inputText.length > 0 && (
-            <TouchableOpacity style={styles.clearBtn} onPress={clearInput}>
-              <Text style={styles.clearBtnText}>✕</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-        {Platform.OS === 'web' ? (
-          <button
-            onClick={analyze}
-            style={{
-              backgroundColor: '#7ed957',
-              borderRadius: 12,
-              padding: 14,
-              textAlign: 'center',
-              marginBottom: 12,
-              border: 'none',
-              width: '100%',
-              fontSize: 16,
-              fontWeight: 'bold',
-              color: '#111',
-              cursor: 'pointer',
-              display: 'block',
-            } as React.CSSProperties}
-          >
-            分析する
-          </button>
-        ) : (
-          <TouchableOpacity style={styles.analyzeBtn} onPress={analyze} activeOpacity={0.7}>
-            <Text style={styles.analyzeBtnText}>分析する</Text>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled"
+      style={styles.scrollBg}
+    >
+      {/* ── テキスト入力 ── */}
+      <View style={styles.inputWrapper}>
+        <TextInput
+          style={styles.textInput}
+          multiline
+          placeholder="英文をここに貼り付けてください..."
+          placeholderTextColor="#666"
+          value={inputText}
+          onChangeText={(t) => { setInputText(t); setIsAnalyzed(false); }}
+          textAlignVertical="top"
+        />
+        {inputText.length > 0 && (
+          <TouchableOpacity style={styles.clearBtn} onPress={clearInput}>
+            <Text style={styles.clearBtnText}>✕</Text>
           </TouchableOpacity>
         )}
       </View>
 
-      {/* ── 結果エリア（ScrollView内） ── */}
-      <ScrollView
-        contentContainerStyle={styles.container}
-        keyboardShouldPersistTaps="handled"
-        style={styles.scrollBg}
-      >
+      {Platform.OS === 'web' ? (
+        <button
+          onClick={analyze}
+          style={{
+            backgroundColor: '#7ed957',
+            borderRadius: 12,
+            padding: 14,
+            textAlign: 'center',
+            marginBottom: 12,
+            border: 'none',
+            width: '100%',
+            fontSize: 16,
+            fontWeight: 'bold',
+            color: '#111',
+            cursor: 'pointer',
+            display: 'block',
+          } as React.CSSProperties}
+        >
+          分析する
+        </button>
+      ) : (
+        <TouchableOpacity style={styles.analyzeBtn} onPress={analyze} activeOpacity={0.7}>
+          <Text style={styles.analyzeBtnText}>分析する</Text>
+        </TouchableOpacity>
+      )}
 
       {/* ── 履歴 ── */}
       {textHistory.length > 0 && (
@@ -798,7 +794,6 @@ export default function ReaderScreen() {
         </>
       )}
       </ScrollView>
-    </View>
   );
 }
 

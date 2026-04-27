@@ -626,32 +626,36 @@ export default function ReaderScreen() {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      keyboardShouldPersistTaps="handled"
-      style={styles.scrollBg}
-    >
-      {/* ── テキスト入力 ── */}
-      <View style={styles.inputWrapper}>
-        <TextInput
-          style={styles.textInput}
-          multiline
-          placeholder="英文をここに貼り付けてください..."
-          placeholderTextColor="#666"
-          value={inputText}
-          onChangeText={(t) => { setInputText(t); setIsAnalyzed(false); }}
-          textAlignVertical="top"
-        />
-        {inputText.length > 0 && (
-          <TouchableOpacity style={styles.clearBtn} onPress={clearInput}>
-            <Text style={styles.clearBtnText}>✕</Text>
-          </TouchableOpacity>
-        )}
+    <View style={{ flex: 1, backgroundColor: '#121212' }}>
+      {/* ── 入力エリア（ScrollView外） ── */}
+      <View style={{ padding: 20, paddingBottom: 0 }}>
+        <View style={styles.inputWrapper}>
+          <TextInput
+            style={styles.textInput}
+            multiline
+            placeholder="英文をここに貼り付けてください..."
+            placeholderTextColor="#666"
+            value={inputText}
+            onChangeText={(t) => { setInputText(t); setIsAnalyzed(false); }}
+            textAlignVertical="top"
+          />
+          {inputText.length > 0 && (
+            <TouchableOpacity style={styles.clearBtn} onPress={clearInput}>
+              <Text style={styles.clearBtnText}>✕</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+        <TouchableOpacity style={styles.analyzeBtn} onPress={analyze} activeOpacity={0.7}>
+          <Text style={styles.analyzeBtnText}>分析する</Text>
+        </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.analyzeBtn} onPress={analyze}>
-        <Text style={styles.analyzeBtnText}>分析する</Text>
-      </TouchableOpacity>
+      {/* ── 結果エリア（ScrollView内） ── */}
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        style={styles.scrollBg}
+      >
 
       {/* ── 履歴 ── */}
       {textHistory.length > 0 && (
@@ -770,7 +774,8 @@ export default function ReaderScreen() {
           )}
         </>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 

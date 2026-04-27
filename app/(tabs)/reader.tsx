@@ -653,23 +653,23 @@ export default function ReaderScreen() {
       <Text style={{ color: '#888', fontSize: 11, marginBottom: 4 }}>文字数: {inputText.length}</Text>
 
       {Platform.OS === 'web' ? (
-        <div
-          role="button"
+        <button
           onClick={analyze}
           style={{
             backgroundColor: '#7ed957', borderRadius: 12, padding: 14,
-            textAlign: 'center', marginBottom: 12, cursor: 'pointer',
-            WebkitTapHighlightColor: 'transparent', userSelect: 'none',
+            width: '100%', border: 'none', marginBottom: 12, cursor: 'pointer',
+            fontSize: 16, fontWeight: 'bold', color: '#111',
+            WebkitAppearance: 'none', touchAction: 'manipulation',
           } as React.CSSProperties}
         >
-          <span style={{ color: '#111', fontWeight: 'bold', fontSize: 16 }}>分析する</span>
-        </div>
+          分析する
+        </button>
       ) : (
         <TouchableOpacity style={styles.analyzeBtn} onPress={analyze}>
           <Text style={styles.analyzeBtnText}>分析する</Text>
         </TouchableOpacity>
       )}
-      <Text style={{ color: '#333', fontSize: 10, textAlign: 'right', marginTop: 2 }}>v8</Text>
+      <Text style={{ color: '#333', fontSize: 10, textAlign: 'right', marginTop: 2 }}>v10</Text>
 
       {/* ── 履歴 ── */}
       {textHistory.length > 0 && (

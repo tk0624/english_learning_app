@@ -50,14 +50,14 @@ function MasteredStatsCard({
         <View style={mStatsStyles.sep} />
         <View style={mStatsStyles.item}>
           <Text style={mStatsStyles.num}>{trashCount}</Text>
-          <Text style={mStatsStyles.lbl}>📋 保存中（30日）</Text>
+          <Text style={mStatsStyles.lbl}>📋 現在保存中</Text>
         </View>
       </View>
       <View style={mStatsStyles.barBg}>
         <View style={[mStatsStyles.barFill, { width: fillWidth, backgroundColor: barColor }]} />
       </View>
       <Text style={mStatsStyles.mileTxt}>
-        🎯 次の目標 {next}語 — あと {next - totalMastered}語
+        🎯 次の目標 {next}語 — あと {next - totalMastered}語 　※ 各単語は習得から30日後に自動削除
       </Text>
     </View>
   );

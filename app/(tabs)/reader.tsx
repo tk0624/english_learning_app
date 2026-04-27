@@ -4,10 +4,10 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Pressable,
   ScrollView,
   StyleSheet,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import * as Speech from 'expo-speech';
 import { useProgressStore } from '@/store/progressStore';
@@ -650,10 +650,24 @@ export default function ReaderScreen() {
         )}
       </View>
 
-      <Pressable style={styles.analyzeBtn} onPress={analyze} onClick={analyze as any}>
-        <Text style={styles.analyzeBtnText}>分析する</Text>
-      </Pressable>
-      <Text style={{ color: '#333', fontSize: 10, textAlign: 'right', marginTop: 2 }}>v7</Text>
+      {Platform.OS === 'web' ? (
+        <div
+          role="button"
+          onClick={analyze}
+          style={{
+            backgroundColor: '#7ed957', borderRadius: 12, padding: 14,
+            textAlign: 'center', marginBottom: 12, cursor: 'pointer',
+            WebkitTapHighlightColor: 'transparent', userSelect: 'none',
+          } as React.CSSProperties}
+        >
+          <span style={{ color: '#111', fontWeight: 'bold', fontSize: 16 }}>分析する</span>
+        </div>
+      ) : (
+        <TouchableOpacity style={styles.analyzeBtn} onPress={analyze}>
+          <Text style={styles.analyzeBtnText}>分析する</Text>
+        </TouchableOpacity>
+      )}
+      <Text style={{ color: '#333', fontSize: 10, textAlign: 'right', marginTop: 2 }}>v8</Text>
 
       {/* ── 履歴 ── */}
       {textHistory.length > 0 && (

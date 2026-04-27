@@ -8,7 +8,6 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import * as Speech from 'expo-speech';
 import { useProgressStore } from '@/store/progressStore';
 import { lookupWord } from '@/utils/dictionaryApi';
@@ -466,7 +465,6 @@ function extractWords(text: string): string[] {
 }
 
 export default function ReaderScreen() {
-  const navigation = useNavigation();
   const [inputText, setInputText]       = useState('');
   const [isAnalyzed, setIsAnalyzed]     = useState(false);
   const [words, setWords]               = useState<string[]>([]);
@@ -643,8 +641,6 @@ export default function ReaderScreen() {
           value={inputText}
           onChangeText={(t) => { setInputText(t); setIsAnalyzed(false); }}
           textAlignVertical="top"
-          onFocus={() => navigation.setOptions({ tabBarStyle: { display: 'none' } })}
-          onBlur={() => navigation.setOptions({ tabBarStyle: undefined })}
         />
         {inputText.length > 0 && (
           <TouchableOpacity style={styles.clearBtn} onPress={clearInput}>

@@ -11,9 +11,21 @@ export default function RootLayout() {
     load();
   }, []);
 
-  // Web: viewport meta でピンチズーム・自動ズームを抑止
+  // Web: no-cache meta + viewport meta
   useEffect(() => {
     if (Platform.OS !== 'web') return;
+    // キャッシュ無効化
+    const addMeta = (httpEquiv: string, content: string) => {
+      if (!document.querySelector(`meta[http-equiv="${httpEquiv}"]`)) {
+        const m = document.createElement('meta');
+        m.httpEquiv = httpEquiv;
+        m.content = content;
+        document.head.appendChild(m);
+      }
+    };
+    addMeta('Cache-Control', 'no-cache, no-store, must-revalidate');
+    addMeta('Pragma', 'no-cache');
+    addMeta('Expires', '0');
     const meta = document.querySelector('meta[name="viewport"]');
     if (meta) {
       meta.setAttribute(
@@ -26,7 +38,14 @@ export default function RootLayout() {
       tag.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
       document.head.appendChild(tag);
     }
-
+    // iOS PWA: キーボード表示時にドキュメントがスクロールしてタブバーが消えるのを防ぐ
+    // visualViewport scroll は iOS がキーボード展開時に発火する
+    if (window.visualViewport) {
+      const resetScroll = () => {
+        if (window.scrollY !== 0) window.scrollTo(0, 0);
+      };
+      window.visualViewport.addEventListener('scroll', resetScroll);
+    }
 
   }, []);
 

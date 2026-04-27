@@ -27,12 +27,7 @@ export default function RootLayout() {
       document.head.appendChild(tag);
     }
 
-    // iOS PWA: キーボード表示時にビューポート高さが縮小してタブバーが消える問題を防ぐ
-    // screen.height はキーボードが出ても変化しない物理画面高さ
-    const appH = window.screen.height;
-    const style = document.createElement('style');
-    style.textContent = `html,body{height:${appH}px!important;max-height:${appH}px!important;overflow:hidden!important;position:fixed!important;width:100%!important;}`;
-    document.head.appendChild(style);
+
   }, []);
 
   return (

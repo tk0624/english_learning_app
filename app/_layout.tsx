@@ -38,15 +38,6 @@ export default function RootLayout() {
       tag.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
       document.head.appendChild(tag);
     }
-    // iOS PWA: キーボード表示時にドキュメントがスクロールしてタブバーが消えるのを防ぐ
-    // visualViewport scroll は iOS がキーボード展開時に発火する
-    if (window.visualViewport) {
-      const resetScroll = () => {
-        if (window.scrollY !== 0) window.scrollTo(0, 0);
-      };
-      window.visualViewport.addEventListener('scroll', resetScroll);
-    }
-
   }, []);
 
   return (

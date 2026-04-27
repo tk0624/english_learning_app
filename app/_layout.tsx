@@ -11,31 +11,19 @@ export default function RootLayout() {
     load();
   }, []);
 
-  // Web: no-cache meta + viewport meta
+  // Web: viewport meta でピンチズーム・自動ズームを抑止
   useEffect(() => {
     if (Platform.OS !== 'web') return;
-    // キャッシュ無効化
-    const addMeta = (httpEquiv: string, content: string) => {
-      if (!document.querySelector(`meta[http-equiv="${httpEquiv}"]`)) {
-        const m = document.createElement('meta');
-        m.httpEquiv = httpEquiv;
-        m.content = content;
-        document.head.appendChild(m);
-      }
-    };
-    addMeta('Cache-Control', 'no-cache, no-store, must-revalidate');
-    addMeta('Pragma', 'no-cache');
-    addMeta('Expires', '0');
     const meta = document.querySelector('meta[name="viewport"]');
     if (meta) {
       meta.setAttribute(
         'content',
-        'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover',
+        'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
       );
     } else {
       const tag = document.createElement('meta');
       tag.name = 'viewport';
-      tag.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
+      tag.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no';
       document.head.appendChild(tag);
     }
   }, []);

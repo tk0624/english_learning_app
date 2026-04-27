@@ -1,5 +1,4 @@
 import { Tabs } from 'expo-router';
-import { useEffect, useState } from 'react';
 import { Platform, Text } from 'react-native';
 
 const TABS: { name: string; label: string; emoji: string }[] = [
@@ -9,21 +8,6 @@ const TABS: { name: string; label: string; emoji: string }[] = [
 ];
 
 export default function TabLayout() {
-  const [safeBottom, setSafeBottom] = useState(0);
-
-  useEffect(() => {
-    if (Platform.OS !== 'web') return;
-    const probe = document.createElement('div');
-    probe.style.paddingBottom = 'env(safe-area-inset-bottom, 0px)';
-    probe.style.position = 'fixed';
-    probe.style.visibility = 'hidden';
-    probe.style.pointerEvents = 'none';
-    document.body.appendChild(probe);
-    const val = parseFloat(getComputedStyle(probe).paddingBottom) || 0;
-    document.body.removeChild(probe);
-    setSafeBottom(val);
-  }, []);
-
   return (
     <Tabs
       screenOptions={{
@@ -36,8 +20,8 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: '#1a1a2e',
           borderTopColor: '#2a2a3e',
-          height: Platform.OS === 'web' ? 68 + safeBottom : 96,
-          paddingBottom: Platform.OS === 'web' ? safeBottom : 0,
+          height: Platform.OS === 'web' ? 68 : 96,
+          paddingBottom: 0,
         },
         tabBarItemStyle: {
           paddingTop: 6,

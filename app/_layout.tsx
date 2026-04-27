@@ -26,6 +26,12 @@ export default function RootLayout() {
       tag.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
       document.head.appendChild(tag);
     }
+
+    // iOS PWA: キーボード表示時にビューポート高さが縮小してタブバーが消える問題を防ぐ
+    // 100svh = キーボードが出ても変化しない「小さい方のビューポート高さ」
+    const style = document.createElement('style');
+    style.textContent = 'html,body{height:100svh!important;overflow:hidden!important}';
+    document.head.appendChild(style);
   }, []);
 
   return (

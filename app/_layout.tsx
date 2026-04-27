@@ -18,12 +18,12 @@ export default function RootLayout() {
     if (meta) {
       meta.setAttribute(
         'content',
-        'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
+        'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover',
       );
     } else {
       const tag = document.createElement('meta');
       tag.name = 'viewport';
-      tag.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no';
+      tag.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
       document.head.appendChild(tag);
     }
   }, []);

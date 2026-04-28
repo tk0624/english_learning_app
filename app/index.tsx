@@ -49,16 +49,18 @@ export default function HomeScreen() {
                 justifyContent: 'center',
                 paddingTop: 6,
                 paddingBottom: 10,
-                background: 'none',
+                background: active ? 'rgba(126,217,87,0.10)' : 'none',
                 border: 'none',
+                borderTop: active ? '2px solid #7ed957' : '2px solid transparent',
                 cursor: 'pointer',
                 gap: 2,
+                transition: 'background 0.15s',
               } as React.CSSProperties}
             >
-              <span style={{ fontSize: 20 }}>{emoji}</span>
+              <span style={{ fontSize: active ? 22 : 20, transition: 'font-size 0.15s' }}>{emoji}</span>
               <span style={{
                 fontSize: 11,
-                fontWeight: '600',
+                fontWeight: '700',
                 color: active ? '#7ed957' : '#888',
               }}>{label}</span>
             </button>

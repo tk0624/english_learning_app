@@ -627,10 +627,11 @@ export default function ReaderScreen() {
   };
 
   return (
+    <View style={{ flex: 1, backgroundColor: '#121212' }}>
     <ScrollView
       contentContainerStyle={styles.container}
       keyboardShouldPersistTaps="handled"
-      style={styles.scrollBg}
+      style={[styles.scrollBg, { flex: 1 }]}
     >
       {/* ── テキスト入力 ── */}
       <View style={styles.inputWrapper}>
@@ -794,6 +795,7 @@ export default function ReaderScreen() {
         </>
       )}
       </ScrollView>
+    </View>
   );
 }
 

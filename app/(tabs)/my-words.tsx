@@ -129,7 +129,8 @@ export default function MyWordsScreen() {
   const totalEver = myVocabulary.length + totalMastered;
 
   return (
-    <ScrollView contentContainerStyle={styles.container} style={styles.scrollBg}>
+    <View style={{ flex: 1, backgroundColor: '#121212' }}>
+    <ScrollView contentContainerStyle={styles.container} style={[styles.scrollBg, { flex: 1 }]}>
 
       {/* ── Stats Card ── */}
       <View style={styles.statsCard}>
@@ -199,6 +200,7 @@ export default function MyWordsScreen() {
       )}
 
     </ScrollView>
+    </View>
   );
 }
 

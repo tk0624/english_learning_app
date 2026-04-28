@@ -11,7 +11,7 @@ export default function RootLayout() {
     load();
   }, []);
 
-  // Web: viewport meta でピンチズーム・自動ズームを抑止
+  // Web: viewport meta でピンチズーム・自動ズームを抑止 / body スクロールを無効化
   useEffect(() => {
     if (Platform.OS !== 'web') return;
     const meta = document.querySelector('meta[name="viewport"]');
@@ -26,6 +26,11 @@ export default function RootLayout() {
       tag.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no';
       document.head.appendChild(tag);
     }
+    // body レベルのスクロールを抑止することで Safari が browser chrome を隠した状態を維持する
+    document.documentElement.style.height = '100%';
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.height = '100%';
+    document.body.style.overflow = 'hidden';
   }, []);
 
   return (

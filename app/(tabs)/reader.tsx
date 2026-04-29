@@ -467,6 +467,7 @@ function extractWords(text: string): string[] {
 
 export default function ReaderScreen() {
   const [inputText, setInputText]       = useState('');
+  const [analyzedText, setAnalyzedText] = useState('');
   const [isAnalyzed, setIsAnalyzed]     = useState(false);
   const [words, setWords]               = useState<string[]>([]);
   const [unknownWords, setUnknownWords] = useState<Set<string>>(new Set());
@@ -530,7 +531,8 @@ export default function ReaderScreen() {
     const jpMatch = inputText.search(/[\u3000-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]/);
     const cleanText = jpMatch >= 0 ? inputText.slice(0, jpMatch).trim() : inputText.trim();
     if (!cleanText) return;
-    setInputText(cleanText);
+    setAnalyzedText(cleanText);
+    setInputText('');
     setWords(extractWords(cleanText));
     setUnknownWords(new Set());
     setTranslation('');
@@ -543,6 +545,7 @@ export default function ReaderScreen() {
 
   const clearInput = () => {
     setInputText('');
+    setAnalyzedText('');
     setIsAnalyzed(false);
     setWords([]);
     setUnknownWords(new Set());
@@ -574,7 +577,7 @@ export default function ReaderScreen() {
     // cancel → 短い遅延 で音声エンジンをリセットしてから発話する。
     Speech.stop();
     setTimeout(() => {
-      Speech.speak(inputText, {
+      Speech.speak(analyzedText, {
         language: 'en-US',
         rate,
         onDone:  () => setIsPlaying(false),
@@ -609,7 +612,7 @@ export default function ReaderScreen() {
         example:            topDef?.example           ?? '',
         exampleTranslation: '',
         audioUrl:           dict?.audioUrl,
-        sourceText:         inputText.slice(0, 120),
+        sourceText:         analyzedText.slice(0, 120),
         addedDate:          new Date().toISOString(),
       };
       await addToVocabulary(item);
@@ -644,7 +647,7 @@ export default function ReaderScreen() {
           onChangeText={(t) => { setInputText(t); setIsAnalyzed(false); }}
           textAlignVertical="top"
         />
-        {inputText.length > 0 && (
+        {(inputText.length > 0 || isAnalyzed) && (
           <TouchableOpacity style={styles.clearBtn} onPress={clearInput}>
             <Text style={styles.clearBtnText}>✕</Text>
           </TouchableOpacity>
@@ -735,6 +738,14 @@ export default function ReaderScreen() {
                 <Text style={styles.stopBtnText}>⏹ 停止</Text>
               </TouchableOpacity>
             )}
+          </View>
+
+          {/* ── 原文 ── */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>📄 原文</Text>
+            <View style={styles.placeholderBox}>
+              <Text style={[styles.placeholderText, { lineHeight: 22 }]}>{analyzedText}</Text>
+            </View>
           </View>
 
           {/* ── 和訳 ── */}
